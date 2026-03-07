@@ -80,6 +80,9 @@ def search_amazon(keyword):
 # ---------- TELEGRAM HANDLER ----------
 async def handle_message(update, context: ContextTypes.DEFAULT_TYPE):
 
+    if update.message is None or update.message.text is None:
+        return
+
     keyword = update.message.text.strip()
 
     await update.message.reply_text(f"🔍 Searching Amazon for: {keyword}")
@@ -92,7 +95,6 @@ async def handle_message(update, context: ContextTypes.DEFAULT_TYPE):
 
     except Exception as e:
         await update.message.reply_text(f"Error: {str(e)}")
-
 
 # ---------- MAIN ----------
 def main():
