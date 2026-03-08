@@ -104,6 +104,10 @@ def main():
     if not BOT_TOKEN:
         raise ValueError("BOT_TOKEN not set in environment variables")
 
+    # create event loop manually (fix for Python 3.14)
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
     app = ApplicationBuilder().token(BOT_TOKEN).build()
 
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
