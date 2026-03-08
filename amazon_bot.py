@@ -2,6 +2,8 @@ import sys
 import os
 import logging
 import asyncio
+import threading
+from flask import Flask
 
 from telegram.ext import ApplicationBuilder, MessageHandler, ContextTypes, filters
 
@@ -14,7 +16,6 @@ from creatorsapi_python_sdk.models.search_items_request_content import SearchIte
 
 
 # ---------- ENVIRONMENT VARIABLES ----------
-
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 AMAZON_CLIENT_ID = os.getenv("AMAZON_CLIENT_ID")
 AMAZON_CLIENT_SECRET = os.getenv("AMAZON_CLIENT_SECRET")
@@ -28,6 +29,19 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     level=logging.INFO
 )
+
+
+# ---------- SMALL WEB SERVER (for Render port detection) ----------
+app_web = Flask(__name__)
+
+@app_web.route("/")
+def home():
+    return "Telegram Amazon Bot Running"
+
+
+def run_web():
+    port = int(os.environ.get("PORT", 10000))
+    app_web.run(host="0.0.0.0", port=port)
 
 
 # ---------- AMAZON SEARCH FUNCTION ----------
@@ -104,18 +118,25 @@ def main():
     if not BOT_TOKEN:
         raise ValueError("BOT_TOKEN not set in environment variables")
 
-    # create event loop manually (fix for Python 3.14)
+    # fix for Python 3.14 event loop
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
 
-    app = ApplicationBuilder().token(BOT_TOKEN).build()
+    application = ApplicationBuilder().token(BOT_TOKEN).build()
 
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    application.add_handler(
+        MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message)
+    )
 
     print("✅ Bot running...")
 
-    app.run_polling()
+    application.run_polling()
 
 
 if __name__ == "__main__":
+
+    # start web server for Render
+    threading.Thread(target=run_web).start()
+
+    # start telegram bot
     main()
