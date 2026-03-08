@@ -3,3 +3,4 @@ flask
 pydantic>=2.0.0
 python-dateutil
 urllib3
+requests
