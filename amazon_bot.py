@@ -1,6 +1,7 @@
 import sys
 import os
 import logging
+import asyncio
 
 from telegram.ext import ApplicationBuilder, MessageHandler, ContextTypes, filters
 
@@ -55,7 +56,7 @@ def search_amazon(keyword):
     results = []
 
     if not response.search_result.items:
-        return ["No products found."]
+        return ["❌ No products found."]
 
     for item in response.search_result.items:
 
@@ -94,10 +95,11 @@ async def handle_message(update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text(product)
 
     except Exception as e:
-        await update.message.reply_text(f"Error: {str(e)}")
+        await update.message.reply_text(f"❌ Error: {str(e)}")
+
 
 # ---------- MAIN ----------
-def main():
+async def main():
 
     if not BOT_TOKEN:
         raise ValueError("BOT_TOKEN not set in environment variables")
@@ -108,8 +110,9 @@ def main():
 
     print("✅ Bot running...")
 
-    app.run_polling()
+    await app.run_polling()
 
 
+# ---------- RUN ----------
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
