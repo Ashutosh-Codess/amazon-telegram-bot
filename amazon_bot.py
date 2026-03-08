@@ -99,7 +99,7 @@ async def handle_message(update, context: ContextTypes.DEFAULT_TYPE):
 
 
 # ---------- MAIN ----------
-async def main():
+def main():
 
     if not BOT_TOKEN:
         raise ValueError("BOT_TOKEN not set in environment variables")
@@ -110,9 +110,8 @@ async def main():
 
     print("✅ Bot running...")
 
-    await app.run_polling()
+    app.run_polling()
 
 
-# ---------- RUN ----------
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
